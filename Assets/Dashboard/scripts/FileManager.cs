@@ -35,6 +35,35 @@ public class FileManager : MonoBehaviour
     {
         StartCoroutine(LoadByName(address));
     }
+    public void GetPrefabFromJson()
+    {
+        foreach (Transform child in uiParent)
+            Destroy(child.gameObject);
+
+        prefabNamelist.Clear();
+
+        try
+        {
+            StreamReader reader = new StreamReader(jsonPath);
+            string txt = reader.ReadToEnd();
+            var resultString1 = Regex.Split(txt, "prefab_", RegexOptions.IgnoreCase);
+            //print(resultString1[1]);
+            for (int i = 1; i < resultString1.Length; i++)
+            {
+                var resultString2 = resultString1[i].Split('"');
+                //print(resultString2[0]);
+                var name = $"Assets/prefab_{resultString2[0].Trim()}";
+                prefabNamelist.Add(name);
+                CreateBtn(name);
+            }
+            reader.Close();
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning(e);
+        }
+    }
+
 
 
     private IEnumerator LoadByName(string name)
@@ -81,30 +110,6 @@ public class FileManager : MonoBehaviour
                 }, false);
         }
         print("LoadAll:Done");
-    }
-
-    [ContextMenu("GetPrefabFromJson")]
-    private bool GetPrefabFromJson()
-    {
-        foreach (Transform child in uiParent)
-            Destroy(child.gameObject);
-
-        prefabNamelist.Clear();
-
-        StreamReader reader = new StreamReader(jsonPath);
-        string txt = reader.ReadToEnd();
-        var resultString1 = Regex.Split(txt, "prefab_", RegexOptions.IgnoreCase);
-        //print(resultString1[1]);
-        for (int i = 1; i < resultString1.Length; i++)
-        {
-            var resultString2 = resultString1[i].Split('"');
-            //print(resultString2[0]);
-            var name = $"Assets/prefab_{resultString2[0].Trim()}";
-            prefabNamelist.Add(name);
-            CreateBtn(name);
-        }
-        reader.Close();
-        return true;
     }
 
     private void CreateBtn(string name)
