@@ -14,6 +14,7 @@ public class Dashboard : MonoBehaviour
     public bool Enable { get; set; } = false;
 
     private int preCount = 0;
+    private UnityEngine.UI.ToggleGroup toggleGroup;
 
     private void Awake()
     {
@@ -22,6 +23,7 @@ public class Dashboard : MonoBehaviour
 
     private IEnumerator Start()
     {
+        toggleGroup = GetComponent<UnityEngine.UI.ToggleGroup>();
         yield return new WaitUntil(Init);
     }
 
@@ -64,6 +66,11 @@ public class Dashboard : MonoBehaviour
         var item = go.GetComponent<Item>();
         item.SetName(name);
         item.SetTarget(ObjectGroup.GetChild(index));
-        item.ItemButton.group = GetComponent<UnityEngine.UI.ToggleGroup>();
+        item.ItemButton.group = toggleGroup;
+    }
+
+    public void SetToggleGroupDefault()
+    {
+        toggleGroup.SetAllTogglesOff();
     }
 }
