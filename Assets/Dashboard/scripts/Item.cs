@@ -15,8 +15,6 @@ public class Item : MonoBehaviour
 
     private void Start()
     {
-        //itemButton = GetComponent<Button>();
-        //itemButton.onClick.AddListener(delegate { OnClick(); });
         itemBtn.onValueChanged.AddListener(delegate { OnValueChangeToggle(itemBtn); } );
         deleteBtn.onClick.AddListener(delegate { StartCoroutine(Delete()); });
     }
@@ -37,7 +35,8 @@ public class Item : MonoBehaviour
         yield return null;
         Destroy(Target.gameObject);
         yield return null;
-        Dashboard.Instance.RefleshContainer(); 
+        Dashboard.Instance.RefleshContainer();
+        Dashboard.Instance.SetToggleGroupDefault();
         yield return null;
         Dashboard.Instance.Enable = true;
         Destroy(gameObject);
@@ -45,7 +44,7 @@ public class Item : MonoBehaviour
 
     private void OnValueChangeToggle(Toggle toggle)
     {
-        print($"[OnClick]{gameObject.name}");
+        //print($"[OnClick]{gameObject.name}");
         if (toggle.isOn)
         {
             itemBtn.targetGraphic.color = new Color32(0, 173, 239, 255);
