@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -11,7 +13,6 @@ public class FileManager : MonoBehaviour
 {
     public static FileManager Instance;
 
-    public string jsonPath = "C:\\Users\\COMPALDEV\\Desktop\\load\\catalog_2022.03.23.02.35.06.json";
     public List<string> prefabNamelist = new List<string>();
 
     [SerializeField]
@@ -21,6 +22,11 @@ public class FileManager : MonoBehaviour
     [SerializeField]
     private Transform gameParent;
 
+    [SerializeField]
+    private UnityEditor.AddressableAssets.Settings.AddressableAssetSettings settings;
+
+    private string jsonPath = string.Empty;
+
     private void Awake()
     {
         Instance = this;
@@ -28,6 +34,22 @@ public class FileManager : MonoBehaviour
 
     private void Start()
     {
+        // Get load/build path
+        var group = AddressableAssetSettingsDefaultObject.Settings.FindGroup("Packed Assets");
+        BundledAssetGroupSchema schema = group.GetSchema<BundledAssetGroupSchema>();
+        var loadpath = schema.LoadPath.GetValue(settings);
+        //print($"Loadpath: {schema.LoadPath.GetValue(settings)}");
+        //print($"Buildpath: {schema.BuildPath.GetValue(settings)}");
+
+        var info = new DirectoryInfo(loadpath);
+        var fileInfo = info.GetFiles();
+        foreach (var file in fileInfo)
+        {
+            if (file.Extension.Equals(".json"))
+                jsonPath = Path.Combine(loadpath, file.Name);
+        }
+
+        print($"Load path: {jsonPath}");
         GetPrefabFromJson();
     }
 
@@ -85,7 +107,7 @@ public class FileManager : MonoBehaviour
             GameObject go = Instantiate(myGameObject);
             go.transform.SetParent(gameParent);
         };
-        print("LoadByName:{name}Done");
+        print($"LoadByName:{name}Done");
     }
     private IEnumerator LoadAll()
     {

@@ -1419,11 +1419,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82db330abc86a214c84bfa9e5b8f544c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jsonPath: C:\Users\COMPALDEV\Desktop\load\catalog_2022.03.23.02.35.06.json
   prefabNamelist: []
   btnprefab: {fileID: 9099368985594239921, guid: 09d600ccf24abc9448f9433c19b59304, type: 3}
   uiParent: {fileID: 1972031545}
   gameParent: {fileID: 514166710}
+  settings: {fileID: 11400000, guid: f9a9cbf34e7ab434ebbaf473ef827e89, type: 2}
 --- !u!1 &1274364551
 GameObject:
   m_ObjectHideFlags: 0
