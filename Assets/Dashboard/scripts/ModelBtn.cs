@@ -7,7 +7,7 @@ public class ModelBtn : MonoBehaviour
 {
     public Button buttonAdd;
     private string address = string.Empty;
-    // Start is called before the first frame update
+
     void Start()
     {
         buttonAdd.onClick.AddListener(delegate { OnClickAdd(); });
@@ -22,5 +22,6 @@ public class ModelBtn : MonoBehaviour
     private void OnClickAdd()
     {
         FileManager.Instance.Load(address);
+        Dashboard.Instance.SetToggleGroupDefault();
     }
 }
