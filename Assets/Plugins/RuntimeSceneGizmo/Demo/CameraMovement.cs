@@ -4,10 +4,8 @@ namespace RuntimeSceneGizmo
 {
 	public class CameraMovement : MonoBehaviour
 	{
-#pragma warning disable 0649
 		[SerializeField]
 		private float sensitivity = 0.5f;
-#pragma warning restore 0649
 
 		private Vector3 prevMousePos;
 		private Transform mainCamParent;
@@ -42,9 +40,9 @@ namespace RuntimeSceneGizmo
 			else if (Input.GetMouseButton(2))
 				Pan(Input.GetAxis("Mouse X"), -Input.GetAxis("Mouse Y"));
 			else if (Input.GetAxis("Mouse ScrollWheel") > 0f)
-				mainCamParent.transform.GetChild(0).Translate(new Vector3(0, 0, 1));
+				mainCamParent.transform.GetChild(0).Translate(new Vector3(0, 0, .5f));
 			else if (Input.GetAxis("Mouse ScrollWheel") < 0f)
-				mainCamParent.transform.GetChild(0).Translate(-new Vector3(0, 0, 1));
+				mainCamParent.transform.GetChild(0).Translate(-new Vector3(0, 0, .5f));
 		}
 
 		private void Pan(float right, float up)

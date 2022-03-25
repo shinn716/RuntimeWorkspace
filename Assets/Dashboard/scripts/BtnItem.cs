@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Item : MonoBehaviour
+public class BtnItem : MonoBehaviour
 {
     [SerializeField] private Text txtName = null;
     [SerializeField] private Button deleteBtn = null;
@@ -28,6 +28,12 @@ public class Item : MonoBehaviour
     {
         txtName.text = name;
     }
+
+    public void MSGDelete()
+    {
+        StartCoroutine(Delete());
+    }
+
 
     private IEnumerator Delete()
     {

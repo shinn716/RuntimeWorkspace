@@ -3,11 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+
+#if UNITY_EDITOR
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
-using UnityEngine;
+#endif
+
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine;
 
 public class FileManager : MonoBehaviour
 {
@@ -18,14 +22,19 @@ public class FileManager : MonoBehaviour
     [SerializeField]
     private GameObject btnprefab;
     [SerializeField]
-    private Transform uiParent;
+    private Transform uiModelGroup;
     [SerializeField]
-    private Transform gameParent;
+    private Transform gameObjGroup;
 
-    [SerializeField]
+#if UNITY_EDITOR
+    [Header("Editor mode"), SerializeField]
     private UnityEditor.AddressableAssets.Settings.AddressableAssetSettings settings;
+#endif
+    [Header("Runtime mode"), SerializeField]
+    private string LoadPath;
 
     private string jsonPath = string.Empty;
+    private int uiIndex = 0;
 
     private void Awake()
     {
@@ -34,10 +43,16 @@ public class FileManager : MonoBehaviour
 
     private void Start()
     {
+        string loadpath = string.Empty;
+#if UNITY_EDITOR
         // Get load/build path
         var group = AddressableAssetSettingsDefaultObject.Settings.FindGroup("Packed Assets");
         BundledAssetGroupSchema schema = group.GetSchema<BundledAssetGroupSchema>();
-        var loadpath = schema.LoadPath.GetValue(settings);
+        loadpath = schema.LoadPath.GetValue(settings);
+#else
+            loadpath = LoadPath;
+#endif
+
         //print($"Loadpath: {schema.LoadPath.GetValue(settings)}");
         //print($"Buildpath: {schema.BuildPath.GetValue(settings)}");
 
@@ -53,13 +68,17 @@ public class FileManager : MonoBehaviour
         GetPrefabFromJson();
     }
 
-    public void Load(string address)
+    public void LoadPrefab(string name, string address, string uuid, Vector3 pos, Quaternion rot, Vector3 scl)
     {
-        StartCoroutine(LoadByName(address));
+        StartCoroutine(LoadByAddress(name, address, uuid, pos, rot, scl));
+    }
+    public void LoadPrefabDefault(string name, string address, string uuid)
+    {
+        StartCoroutine(LoadByAddressDefault(name, address, uuid));
     }
     public void GetPrefabFromJson()
     {
-        foreach (Transform child in uiParent)
+        foreach (Transform child in uiModelGroup)
             Destroy(child.gameObject);
 
         prefabNamelist.Clear();
@@ -87,8 +106,7 @@ public class FileManager : MonoBehaviour
     }
 
 
-
-    private IEnumerator LoadByName(string name)
+    private IEnumerator LoadByAddressDefault(string name, string address, string uuid)
     {
         var cc = jsonPath;
         bool catUpdate = false;
@@ -100,16 +118,22 @@ public class FileManager : MonoBehaviour
         while (!catUpdate)
             yield return null;
 
-        AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(name);
+        AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(address);
         handle.Completed += obj =>
         {
             var myGameObject = obj.Result;
             GameObject go = Instantiate(myGameObject);
-            go.transform.SetParent(gameParent);
+
+            if (!name.Equals("default"))
+                go.name = name;
+
+            go.transform.SetParent(gameObjGroup);
+            go.AddComponent<ObjCfg>().SetCfg(address, uuid);
         };
-        print($"LoadByName:{name}Done");
+        //print($"LoadByName:{name}Done");
     }
-    private IEnumerator LoadAll()
+
+    private IEnumerator LoadByAddress(string name, string address, string uuid, Vector3 pos, Quaternion rot, Vector3 scl)
     {
         var cc = jsonPath;
         bool catUpdate = false;
@@ -121,23 +145,31 @@ public class FileManager : MonoBehaviour
         while (!catUpdate)
             yield return null;
 
-        foreach (var i in prefabNamelist)
+        yield return null;
+        yield return null;
+        yield return null;
+        AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(address);
+        handle.Completed += obj =>
         {
-            Addressables.LoadAssetsAsync<GameObject>(i,
-                obj =>
-                {
-                    Debug.Log(obj.name);
-                    GameObject go = Instantiate(obj);
-                    go.transform.SetParent(gameParent);
-                }, false);
-        }
-        print("LoadAll:Done");
+            var myGameObject = obj.Result;
+            GameObject go = Instantiate(myGameObject);
+
+            if (!name.Equals("default"))
+                go.name = name;
+
+            go.transform.SetParent(gameObjGroup);
+            go.AddComponent<ObjCfg>().SetCfg(address, uuid);
+            go.transform.SetPositionAndRotation(pos, rot);
+            go.transform.localScale = scl;
+        };
+        //print($"LoadByName:{name}Done");
     }
 
     private void CreateBtn(string name)
     {
         GameObject go =  Instantiate(btnprefab);
-        go.transform.SetParent(uiParent);
+        go.name = $"item_{uiIndex++}";
+        go.transform.SetParent(uiModelGroup);
         go.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
         go.GetComponent<ModelBtn>().SetText(name);
     }

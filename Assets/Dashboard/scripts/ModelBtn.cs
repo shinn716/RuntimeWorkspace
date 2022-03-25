@@ -21,7 +21,7 @@ public class ModelBtn : MonoBehaviour
 
     private void OnClickAdd()
     {
-        FileManager.Instance.Load(address);
+        FileManager.Instance.LoadPrefabDefault("default", address, Utils.CreateUUID());
         Dashboard.Instance.SetToggleGroupDefault();
     }
 }
