@@ -9,14 +9,22 @@ namespace RuntimeSceneGizmo
 
 		private Vector3 prevMousePos;
 		private Transform mainCamParent;
+		private Camera mainCam;
+
+		private float fov = 60;
+		private float size = 50;
 
 		private void Awake()
 		{
+			mainCam = Camera.main;
 			mainCamParent = Camera.main.transform.parent;
 		}
 
 		private void Update()
 		{
+			//size = Mathf.Clamp(size, .2f, 100);
+			//fov = Mathf.Clamp(fov, .05f, 100);
+
 			if (Input.GetMouseButtonDown(1))
 				prevMousePos = Input.mousePosition;
 			else if (Input.GetMouseButton(1))
@@ -40,15 +48,38 @@ namespace RuntimeSceneGizmo
 			else if (Input.GetMouseButton(2))
 				Pan(Input.GetAxis("Mouse X"), -Input.GetAxis("Mouse Y"));
 			else if (Input.GetAxis("Mouse ScrollWheel") > 0f)
-				mainCamParent.transform.GetChild(0).Translate(new Vector3(0, 0, .5f));
+			{
+				if (mainCam.orthographic)
+					mainCam.orthographicSize = OrthographicZoomIO(++size * .1f);
+				else
+					mainCam.fieldOfView = PerspectiveZoomIO(++fov);
+				//mainCamParent.transform.GetChild(0).Translate(new Vector3(0, 0, .5f));
+			}
 			else if (Input.GetAxis("Mouse ScrollWheel") < 0f)
-				mainCamParent.transform.GetChild(0).Translate(-new Vector3(0, 0, .5f));
+			{
+				if (mainCam.orthographic)
+					mainCam.orthographicSize = OrthographicZoomIO(--size * .1f);
+				else
+					mainCam.fieldOfView = PerspectiveZoomIO(--fov);
+				//mainCamParent.transform.GetChild(0).Translate(-new Vector3(0, 0, .5f));
+			}
 		}
 
 		private void Pan(float right, float up)
 		{
 			transform.Translate(sensitivity * 2 * right * Vector3.left);
 			transform.Translate(sensitivity * 2 * up * Vector3.up, Space.World);
+		}
+
+		private float OrthographicZoomIO(float value)
+        {
+			return value = value < .1f ? .1f : value;
+        }
+
+		private float PerspectiveZoomIO(float value)
+		{
+			value = value < .01f ? .01f : value;
+			return value;
 		}
 	}
 }
