@@ -1423,6 +1423,7 @@ namespace RuntimeGizmos
 			{
 				lineMaterial = new Material(Shader.Find("Custom/Lines"));
 				outlineMaterial = new Material(Shader.Find("Custom/Outline"));
+				outlineMaterial.SetFloat("_Outline", .02f);
 			}
 		}
 	}
