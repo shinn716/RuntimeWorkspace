@@ -38,13 +38,14 @@ public class SystemManager : MonoBehaviour
     private bool exportFinish = false;
     private bool loadFinish = false;
 
-    public void Load()
+    public void OpenFileBrowser()
     {
         if (loadFinish)
             return;
         loadFinish = true;
-        string path = Path.Combine(Application.streamingAssetsPath, "data.json");
-        StartCoroutine(ProcessLoadData(path));
+
+        //string path = Path.Combine(Application.streamingAssetsPath, "data.json");
+        StartCoroutine(ProcessLoadData(FileBrowserIO.OpenFileBrowser()));
     }
 
     public void Export()
@@ -67,23 +68,38 @@ public class SystemManager : MonoBehaviour
         yield return null;
         var str = JsonHelper.ToJson(objectTransforms.ToArray());
         yield return null;
-        string full = Path.Combine(Application.streamingAssetsPath, $"data.json");
+        string full = Path.Combine(Application.streamingAssetsPath, "datas", $"data_{DateTime.UtcNow:yyyy_MMdd_HHmm}.json");
         using (StreamWriter outputFile = new StreamWriter(full, false))
         {
             outputFile.WriteLine(str);
             outputFile.Close();
         }
         exportFinish = false;
-        Debug.Log($"[Save to] {full}");
+        //Debug.Log($"[Save to] {full}");
+
+        yield return null;
+        System.Diagnostics.Process.Start(@Path.Combine(Application.streamingAssetsPath, "datas"));
     }
     private IEnumerator ProcessLoadData(string path)
     {
+        //print("Load path:" + path);
         foreach (Transform i in hierarchy)
             i.SendMessage("MSGDelete");
         yield return null;
-        StreamReader reader = new StreamReader(path);
-        var json = reader.ReadToEnd();
-        reader.Close();
+
+        string json;
+        try
+        {
+            StreamReader reader = new StreamReader(path);
+            json = reader.ReadToEnd();
+            reader.Close();
+        }
+        catch (Exception)
+        {
+            loadFinish = false;
+            yield break;
+        }
+
         yield return null;
         objectTransforms = JsonHelper.FromJson<ObjectTransform>(json).ToList();
         yield return null;

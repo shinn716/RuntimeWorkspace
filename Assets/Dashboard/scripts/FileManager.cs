@@ -17,14 +17,13 @@ public class FileManager : MonoBehaviour
 {
     public static FileManager Instance;
 
-    public List<string> prefabNamelist = new List<string>();
-
     [SerializeField]
     private GameObject btnprefab;
     [SerializeField]
     private Transform uiModelGroup;
     [SerializeField]
     private Transform gameObjGroup;
+    public List<string> prefabNamelist = new List<string>();
 
 #if UNITY_EDITOR
     [Header("Editor mode"), SerializeField]
