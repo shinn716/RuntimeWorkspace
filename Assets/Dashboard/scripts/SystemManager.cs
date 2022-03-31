@@ -83,10 +83,6 @@ public class SystemManager : MonoBehaviour
     private IEnumerator ProcessLoadData(string path)
     {
         //print("Load path:" + path);
-        foreach (Transform i in hierarchy)
-            i.SendMessage("MSGDelete");
-        yield return null;
-
         string json;
         try
         {
@@ -99,6 +95,9 @@ public class SystemManager : MonoBehaviour
             loadFinish = false;
             yield break;
         }
+
+        foreach (Transform i in hierarchy)
+            i.SendMessage("MSGDelete");
 
         yield return null;
         objectTransforms = JsonHelper.FromJson<ObjectTransform>(json).ToList();
